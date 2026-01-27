@@ -1,0 +1,31 @@
+Source: python-opentelemetry-api
+Section: python
+Priority: optional
+Maintainer: Vítězslav Dvořák <info@vitexsoftware.cz>
+Build-Depends:
+ debhelper-compat (= 13),
+ dh-python,
+ pybuild-plugin-pyproject,
+ python3-all,
+ python3-hatchling,
+Standards-Version: 4.7.0
+Homepage: https://opentelemetry.io
+Vcs-Git: https://github.com/open-telemetry/opentelemetry-python.git
+Vcs-Browser: https://github.com/open-telemetry/opentelemetry-python
+Rules-Requires-Root: no
+
+Package: python3-opentelemetry-api
+Architecture: all
+Depends:
+ ${misc:Depends},
+ ${python3:Depends},
+ python3-deprecated (>= 1.2.6),
+Description: OpenTelemetry Python API
+ OpenTelemetry is a collection of tools, APIs, and SDKs used to instrument,
+ generate, collect, and export telemetry data (metrics, logs, and traces)
+ for analysis in order to understand software performance and behavior.
+ .
+ This package provides the OpenTelemetry API for Python, which defines the
+ interfaces for creating and managing telemetry data.
+ .
+ This package provides the Python 3 library.
