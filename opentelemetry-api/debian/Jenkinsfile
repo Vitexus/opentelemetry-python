@@ -3,11 +3,7 @@
 // Aktuální verze Pipeline: https://github.com/VitexSoftware/BuildImages/blob/main/Test/Jenkinsfile-parael
 
 String[] distributions = [
-    'debian:bookworm',
     'debian:trixie',
-    'debian:forky',
-    'ubuntu:jammy',
-    'ubuntu:noble'
 ]
 
 String vendor = 'vitexsoftware'
@@ -41,9 +37,9 @@ distributions.each { distro ->
                     checkout scm
                     buildImage = docker.image(imageName)
 
-                    sh 'git checkout debian/changelog'
+                    sh 'git checkout opentelemetry-api/debian/changelog'
                     buildVer = sh(
-                        script: "dpkg-parsechangelog --show-field Version",
+                        script: "dpkg-parsechangelog -l opentelemetry-api/debian/changelog --show-field Version",
                         returnStdout: true
                     ).trim() + ".${env.BUILD_NUMBER}~${distroCode}"
                 }
@@ -51,18 +47,19 @@ distributions.each { distro ->
                 stage("Build ${distro}") {
                     buildImage.inside('--ipc=host') {
                         sh """
+                            cd opentelemetry-api
                             dch -b -v ${buildVer} "${env.BUILD_TAG}"
                             sudo apt-get update --allow-releaseinfo-change
-                            sudo chown -R jenkins:jenkins . ..
+                            sudo chown -R jenkins:jenkins . ../..
                             debuild-pbuilder -r'sudo -E' -i -us -uc -b
                             mkdir -p \$WORKSPACE/dist/debian/
                             rm -rf \$WORKSPACE/dist/debian/*
                             for deb in \$(awk '{print \$1}' debian/files); do
-                              mv "../\$deb" \$WORKSPACE/dist/debian/
+                              mv "../../\$deb" \$WORKSPACE/dist/debian/
                             done
                         """
                         artifacts = sh(
-                            script: "awk '{print \$1}' debian/files",
+                            script: "awk '{print \$1}' opentelemetry-api/debian/files",
                             returnStdout: true
                         ).trim().split('\n')
                     }
@@ -106,13 +103,13 @@ distributions.each { distro ->
 
                         sh '''
                             set -e
-                            if [ -f debian/files ]; then
+                            if [ -f opentelemetry-api/debian/files ]; then
                               while read -r file _; do
                                 [ -n "$file" ] || continue
                                 rm -f "dist/debian/$file" || true
-                                rm -f "../$file" || true
+                                rm -f "../../$file" || true
                                 rm -f "$WORKSPACE/$file" || true
-                              done < debian/files
+                              done < opentelemetry-api/debian/files
                             fi
                         '''
                     }
