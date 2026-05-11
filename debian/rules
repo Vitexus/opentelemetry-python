@@ -1,0 +1,18 @@
+#!/usr/bin/make -f
+export PYBUILD_NAME=opentelemetry-api
+export PYBUILD_DIR=opentelemetry-api
+
+%:
+	dh $@ --with python3 --buildsystem=pybuild
+
+override_dh_auto_configure:
+	sed -i 's/__version__ = "1\.42\.0\.dev"/__version__ = "1.41.1"/' \
+	    opentelemetry-api/src/opentelemetry/version/__init__.py
+	dh_auto_configure
+
+override_dh_auto_test:
+	# Skip tests
+
+override_dh_auto_clean:
+	dh_auto_clean
+	git checkout opentelemetry-api/src/opentelemetry/version/__init__.py 2>/dev/null || true
