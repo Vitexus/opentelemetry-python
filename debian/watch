@@ -1,3 +1,9 @@
+# NOTE: opentelemetry-sdk is a subdirectory of the
+# open-telemetry/opentelemetry-python monorepo and is NOT tagged
+# independently there -- the repo's git tags follow opentelemetry-api's
+# version scheme, not this package's own versioning, so they cannot be used
+# to detect new opentelemetry-sdk releases. Watch PyPI directly instead,
+# which is versioned correctly for this specific package.
 version=4
-opts=filenamemangle=s/.+\/v?(\d\S+)\.tar\.gz/opentelemetry-python-$1\.tar\.gz/ \
-  https://github.com/open-telemetry/opentelemetry-python/tags .*/v?(\d\S+)\.tar\.gz
+https://pypi.org/simple/opentelemetry-sdk/ \
+  .*/opentelemetry[-_]sdk[-_]@ANY_VERSION@\.tar\.gz

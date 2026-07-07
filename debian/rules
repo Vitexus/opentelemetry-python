@@ -1,18 +1,46 @@
 #!/usr/bin/make -f
-export PYBUILD_NAME=opentelemetry-api
-export PYBUILD_DIR=opentelemetry-api
+
+# NOTE on package layout: opentelemetry-sdk is not its own git repository --
+# it is a subdirectory of the open-telemetry/opentelemetry-python monorepo
+# (opentelemetry-python/opentelemetry-sdk/), which has its own pyproject.toml.
+# We build directly from that subdirectory via PYBUILD_DIR rather than
+# vendoring the PyPI sdist, so `gbp buildpackage` / `dpkg-buildpackage` can
+# run straight from a checkout of this repo.
+
+export PYBUILD_NAME=opentelemetry-sdk
+export PYBUILD_DIR=opentelemetry-sdk
 
 %:
 	dh $@ --with python3 --buildsystem=pybuild
 
 override_dh_auto_configure:
-	sed -i 's/__version__ = "1\.42\.0\.dev"/__version__ = "1.41.1"/' \
-	    opentelemetry-api/src/opentelemetry/version/__init__.py
+	# Upstream uses dynamic versioning (hatchling reads
+	# src/opentelemetry/sdk/version/__init__.py). The git tree carries a
+	# "...dev" pre-release version; pin it to the actual PyPI release we
+	# are packaging.
+	sed -i 's/__version__ = "1\.42\.0\.dev"/__version__ = "1.43.0"/' \
+	    opentelemetry-sdk/src/opentelemetry/sdk/version/__init__.py
+	# Upstream's pyproject.toml pins its sibling dependencies with *exact*
+	# version matches (opentelemetry-api == 1.42.0.dev,
+	# opentelemetry-semantic-conventions == 0.63b0.dev in the git tree;
+	# the published 1.43.0 sdist pins opentelemetry-api==1.43.0 and
+	# opentelemetry-semantic-conventions==0.64b0). Debian's archived
+	# python3-opentelemetry-api is only 1.41.1-1.2~trixie, so an exact pin
+	# can never be satisfied via apt and pip-style exact pins are not how
+	# Debian dependency resolution works anyway. Relax both to floor
+	# constraints (>=) instead, matching debian/control's Depends.
+	sed -i 's/opentelemetry-api == 1\.42\.0\.dev/opentelemetry-api >= 1.41.1/' \
+	    opentelemetry-sdk/pyproject.toml
+	sed -i 's/opentelemetry-semantic-conventions == 0\.63b0\.dev/opentelemetry-semantic-conventions >= 0.64b0/' \
+	    opentelemetry-sdk/pyproject.toml
 	dh_auto_configure
 
 override_dh_auto_test:
-	# Skip tests
+	# Skip tests - test dependencies not packaged
 
 override_dh_auto_clean:
 	dh_auto_clean
-	git checkout opentelemetry-api/src/opentelemetry/version/__init__.py 2>/dev/null || true
+	git checkout \
+	    opentelemetry-sdk/src/opentelemetry/sdk/version/__init__.py \
+	    opentelemetry-sdk/pyproject.toml \
+	    2>/dev/null || true

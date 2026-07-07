@@ -1,2 +1,1 @@
-importlib_metadata python3
-typing_extensions python3-typing-extensions
+opentelemetry_semantic_conventions python3-opentelemetry-semantic-conventions
