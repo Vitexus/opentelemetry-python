@@ -1,18 +1,22 @@
 #!/usr/bin/make -f
-export PYBUILD_NAME=opentelemetry-api
-export PYBUILD_DIR=opentelemetry-api
+
+export PYBUILD_NAME=opentelemetry-exporter-otlp-proto-common
+export PYBUILD_DIR=exporter/opentelemetry-exporter-otlp-proto-common
 
 %:
 	dh $@ --with python3 --buildsystem=pybuild
 
 override_dh_auto_configure:
-	sed -i 's/__version__ = "1\.42\.0\.dev"/__version__ = "1.41.1"/' \
-	    opentelemetry-api/src/opentelemetry/version/__init__.py
+	sed -i 's/__version__ = "1\.42\.0\.dev"/__version__ = "1.43.0"/' \
+	    exporter/opentelemetry-exporter-otlp-proto-common/src/opentelemetry/exporter/otlp/proto/common/version/__init__.py
+	sed -i 's/opentelemetry-proto == 1\.42\.0\.dev/opentelemetry-proto/' \
+	    exporter/opentelemetry-exporter-otlp-proto-common/pyproject.toml
 	dh_auto_configure
 
 override_dh_auto_test:
-	# Skip tests
+	# Skip tests - test dependencies not packaged
 
 override_dh_auto_clean:
 	dh_auto_clean
-	git checkout opentelemetry-api/src/opentelemetry/version/__init__.py 2>/dev/null || true
+	git checkout exporter/opentelemetry-exporter-otlp-proto-common/src/opentelemetry/exporter/otlp/proto/common/version/__init__.py 2>/dev/null || true
+	git checkout exporter/opentelemetry-exporter-otlp-proto-common/pyproject.toml 2>/dev/null || true
