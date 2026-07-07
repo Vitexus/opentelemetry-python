@@ -1,3 +1,10 @@
+# NOTE: opentelemetry-semantic-conventions is a subdirectory of the
+# open-telemetry/opentelemetry-python monorepo and is NOT tagged
+# independently there -- the repo's git tags (e.g. v1.39.1) follow
+# opentelemetry-api's version scheme, not this package's own "0.NNbN"
+# beta scheme, so they cannot be used to detect new semantic-conventions
+# releases. Watch PyPI directly instead, which is versioned correctly
+# for this specific package.
 version=4
-opts=filenamemangle=s/.+\/v?(\d\S+)\.tar\.gz/opentelemetry-python-$1\.tar\.gz/ \
-  https://github.com/open-telemetry/opentelemetry-python/tags .*/v?(\d\S+)\.tar\.gz
+https://pypi.org/simple/opentelemetry-semantic-conventions/ \
+  .*/opentelemetry[-_]semantic[-_]conventions[-_]@ANY_VERSION@\.tar\.gz

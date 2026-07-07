@@ -1,18 +1,47 @@
 #!/usr/bin/make -f
-export PYBUILD_NAME=opentelemetry-api
-export PYBUILD_DIR=opentelemetry-api
+
+# NOTE on package layout: opentelemetry-semantic-conventions is not its own
+# git repository -- it is a subdirectory of the open-telemetry/opentelemetry-python
+# monorepo (opentelemetry-python/opentelemetry-semantic-conventions/), which has
+# its own pyproject.toml. We build directly from that subdirectory via
+# PYBUILD_DIR rather than vendoring the PyPI sdist, so `gbp buildpackage` /
+# `dpkg-buildpackage` can run straight from a checkout of this repo.
+
+export PYBUILD_NAME=opentelemetry-semantic-conventions
+export PYBUILD_DIR=opentelemetry-semantic-conventions
 
 %:
 	dh $@ --with python3 --buildsystem=pybuild
 
 override_dh_auto_configure:
-	sed -i 's/__version__ = "1\.42\.0\.dev"/__version__ = "1.41.1"/' \
-	    opentelemetry-api/src/opentelemetry/version/__init__.py
+	# Upstream uses dynamic versioning (hatchling reads
+	# src/opentelemetry/semconv/version/__init__.py). The git tree carries a
+	# "...dev" pre-release version; pin it to the actual PyPI release we are
+	# packaging.
+	sed -i 's/__version__ = "0\.63b0\.dev"/__version__ = "0.64b0"/' \
+	    opentelemetry-semantic-conventions/src/opentelemetry/semconv/version/__init__.py
+	# NOTE for downstream packagers (opentelemetry-sdk, opentelemetry-sdk-*,
+	# opentelemetry-instrumentation-*, mistralai, etc.):
+	# Upstream's pyproject.toml pins its sibling dependency with an *exact*
+	# version match (e.g. "opentelemetry-api == 1.42.0.dev" in the git tree;
+	# the published 0.64b0 sdist pins "opentelemetry-api==1.43.0"). Debian's
+	# archived python3-opentelemetry-api is 1.41.1-1.2~trixie, so an exact
+	# pin can never be satisfied via apt and pip-style exact pins are not
+	# how Debian dependency resolution works anyway. We relax this to a
+	# floor constraint (>=) instead of chasing upstream's exact point
+	# release -- do the same in any sibling opentelemetry-* package that
+	# pins this way, both in pyproject.toml (so pybuild's dependency
+	# detection doesn't choke) and in debian/control's Depends.
+	sed -i 's/opentelemetry-api == 1\.42\.0\.dev/opentelemetry-api >= 1.41.1/' \
+	    opentelemetry-semantic-conventions/pyproject.toml
 	dh_auto_configure
 
 override_dh_auto_test:
-	# Skip tests
+	# Skip tests - test dependencies not packaged
 
 override_dh_auto_clean:
 	dh_auto_clean
-	git checkout opentelemetry-api/src/opentelemetry/version/__init__.py 2>/dev/null || true
+	git checkout \
+	    opentelemetry-semantic-conventions/src/opentelemetry/semconv/version/__init__.py \
+	    opentelemetry-semantic-conventions/pyproject.toml \
+	    2>/dev/null || true
