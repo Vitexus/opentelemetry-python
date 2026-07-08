@@ -1,0 +1,9 @@
+# NOTE: opentelemetry-exporter-otlp-proto-grpc is a subdirectory of the
+# open-telemetry/opentelemetry-python monorepo and is NOT tagged
+# independently there -- the repo's git tags follow opentelemetry-api's
+# version scheme, not this package's own versioning, so they cannot be used
+# to detect new opentelemetry-exporter-otlp-proto-grpc releases. Watch PyPI
+# directly instead, which is versioned correctly for this specific package.
+version=4
+https://pypi.org/simple/opentelemetry-exporter-otlp-proto-grpc/ \
+  .*/opentelemetry[-_]exporter[-_]otlp[-_]proto[-_]grpc[-_]@ANY_VERSION@\.tar\.gz

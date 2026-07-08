@@ -1,0 +1,55 @@
+#!/usr/bin/make -f
+
+# NOTE on package layout: opentelemetry-exporter-otlp-proto-grpc is not its
+# own git repository -- it is a subdirectory of the
+# open-telemetry/opentelemetry-python monorepo
+# (exporter/opentelemetry-exporter-otlp-proto-grpc/), which has its own
+# pyproject.toml. We build directly from that subdirectory via PYBUILD_DIR
+# rather than vendoring the PyPI sdist, so `gbp buildpackage` /
+# `dpkg-buildpackage` can run straight from a checkout of this repo.
+
+export PYBUILD_NAME=opentelemetry-exporter-otlp-proto-grpc
+export PYBUILD_DIR=exporter/opentelemetry-exporter-otlp-proto-grpc
+
+%:
+	dh $@ --with python3 --buildsystem=pybuild
+
+override_dh_auto_configure:
+	# Upstream's pyproject.toml pins sibling dependencies with *exact* or
+	# tight version matches that can never be satisfied from Debian's
+	# archive (opentelemetry-proto==1.43.0, opentelemetry-sdk~=1.43.0,
+	# opentelemetry-exporter-otlp-proto-common==1.43.0,
+	# opentelemetry-api~=1.15). Debian ships opentelemetry-proto under an
+	# unrelated numbering scheme (1.5.0), opentelemetry-sdk and
+	# opentelemetry-exporter-otlp-proto-common were just packaged at
+	# 1.43.0-1, and opentelemetry-api is 1.41.1-1.2~trixie. Relax these to
+	# floor constraints (or drop the constraint entirely for
+	# opentelemetry-proto) matching debian/control's Depends, instead of
+	# pip-style exact/compatible-release pins which Debian dependency
+	# resolution does not use.
+	sed -i \
+	    -e "s/opentelemetry-proto == 1\.43\.0/opentelemetry-proto/" \
+	    -e "s/opentelemetry-sdk ~= 1\.43\.0/opentelemetry-sdk >= 1.43.0/" \
+	    -e "s/opentelemetry-exporter-otlp-proto-common == 1\.43\.0/opentelemetry-exporter-otlp-proto-common >= 1.43.0/" \
+	    -e "s/opentelemetry-api ~= 1\.15/opentelemetry-api >= 1.41.1/" \
+	    exporter/opentelemetry-exporter-otlp-proto-grpc/pyproject.toml
+	# Debian trixie's python3-grpcio is 1.51.1, below the >= 1.63.2 floor
+	# upstream requires for python < 3.13. Confirmed by import smoke test
+	# that opentelemetry.exporter.otlp.proto.grpc imports and functions
+	# fine against 1.51.1, so relax the grpcio floor to match what apt
+	# actually provides.
+	sed -i \
+	    -e "s/grpcio >= 1\.63\.2, < 2\.0\.0; python_version < '3\.13'/grpcio; python_version < '3.13'/" \
+	    -e "s/grpcio >= 1\.66\.2, < 2\.0\.0; python_version == '3\.13'/grpcio; python_version == '3.13'/" \
+	    -e "s/grpcio >= 1\.75\.1, < 2\.0\.0; python_version >= '3\.14'/grpcio; python_version >= '3.14'/" \
+	    exporter/opentelemetry-exporter-otlp-proto-grpc/pyproject.toml
+	dh_auto_configure
+
+override_dh_auto_test:
+	# Skip tests - test dependencies not packaged
+
+override_dh_auto_clean:
+	dh_auto_clean
+	git checkout \
+	    exporter/opentelemetry-exporter-otlp-proto-grpc/pyproject.toml \
+	    2>/dev/null || true
