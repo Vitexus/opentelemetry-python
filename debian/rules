@@ -34,6 +34,14 @@ override_dh_auto_configure:
 	# detection doesn't choke) and in debian/control's Depends.
 	sed -i 's/opentelemetry-api == 1\.42\.0\.dev/opentelemetry-api >= 1.41.1/' \
 	    opentelemetry-semantic-conventions/pyproject.toml
+	# Debian's packaged python3-hatchling (1.27.0) validates classifiers
+	# against an older trove-classifiers list that does not yet know
+	# "Framework :: OpenTelemetry" or Python 3.13/3.14, and raises a hard
+	# ValueError during the build backend's metadata step. Strip these
+	# unrecognized classifiers; they carry no functional meaning for the
+	# Debian package.
+	sed -i '/"Framework :: OpenTelemetry",/d; /"Programming Language :: Python :: 3\.1[34]",/d' \
+	    opentelemetry-semantic-conventions/pyproject.toml
 	dh_auto_configure
 
 override_dh_auto_test:
