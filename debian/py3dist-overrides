@@ -1,2 +1,2 @@
-importlib_metadata python3
+importlib_metadata python3-importlib-metadata
 typing_extensions python3-typing-extensions

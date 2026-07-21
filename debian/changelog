@@ -1,5 +1,12 @@
-python-opentelemetry-api (1.41.1-1) UNRELEASED; urgency=low
+python-opentelemetry-api (1.41.1-2) UNRELEASED; urgency=medium
 
-  * Initial Debian packaging
+  * Fix debian/py3dist-overrides: map importlib_metadata to
+    python3-importlib-metadata instead of bare python3. The previous
+    mapping assumed Python 3.12+ stdlib importlib.metadata satisfies
+    `import importlib_metadata`, but that's a distinct top-level backport
+    package (python3-importlib-metadata, a real installable package in
+    trixie), not a stdlib submodule. This silently dropped the real
+    Depends, causing ModuleNotFoundError: No module named
+    'importlib_metadata' at runtime (mcp-server-webdriver issue #3)
 
- -- Vítězslav Dvořák <info@vitexsoftware.cz>  Mon, 11 May 2026 12:40:05 +0200
+ -- Vítězslav Dvořák <info@vitexsoftware.cz>  Tue, 21 Jul 2026 15:00:00 +0200
