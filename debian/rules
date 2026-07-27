@@ -1,18 +1,38 @@
 #!/usr/bin/make -f
-export PYBUILD_NAME=opentelemetry-api
-export PYBUILD_DIR=opentelemetry-api
+
+# NOTE: opentelemetry-exporter-otlp-proto-http is a subdirectory of the
+# open-telemetry/opentelemetry-python monorepo
+# (exporter/opentelemetry-exporter-otlp-proto-http/).
+
+export PYBUILD_NAME=opentelemetry-exporter-otlp-proto-http
+export PYBUILD_DIR=exporter/opentelemetry-exporter-otlp-proto-http
 
 %:
 	dh $@ --with python3 --buildsystem=pybuild
 
 override_dh_auto_configure:
-	sed -i 's/__version__ = "1\.42\.0\.dev"/__version__ = "1.41.1"/' \
-	    opentelemetry-api/src/opentelemetry/version/__init__.py
+	sed -i 's/__version__ = "1\.42\.0\.dev"/__version__ = "1.43.0"/' \
+	    exporter/opentelemetry-exporter-otlp-proto-http/src/opentelemetry/exporter/otlp/proto/http/version/__init__.py
+	# Same rationale as debian-packaging-otlp-grpc / -otlp-proto-common:
+	# relax pip-style exact/compatible-release pins to floor constraints
+	# matching debian/control's Depends, since Debian's dependency
+	# resolution doesn't understand "=="/"~=" pins.
+	sed -i \
+	    -e "s/opentelemetry-proto == 1\.42\.0\.dev/opentelemetry-proto/" \
+	    -e "s/opentelemetry-sdk ~= 1\.42\.0\.dev/opentelemetry-sdk >= 1.43.0/" \
+	    -e "s/opentelemetry-exporter-otlp-proto-common == 1\.42\.0\.dev/opentelemetry-exporter-otlp-proto-common >= 1.43.0/" \
+	    -e "s/opentelemetry-api ~= 1\.15/opentelemetry-api >= 1.41.1/" \
+	    exporter/opentelemetry-exporter-otlp-proto-http/pyproject.toml
+	sed -i '/"Framework :: OpenTelemetry/d; /"Programming Language :: Python :: 3\.1[34]",/d' \
+	    exporter/opentelemetry-exporter-otlp-proto-http/pyproject.toml
 	dh_auto_configure
 
 override_dh_auto_test:
-	# Skip tests
+	# Skip tests - test dependencies not packaged
 
 override_dh_auto_clean:
 	dh_auto_clean
-	git checkout opentelemetry-api/src/opentelemetry/version/__init__.py 2>/dev/null || true
+	git checkout \
+	    exporter/opentelemetry-exporter-otlp-proto-http/pyproject.toml \
+	    exporter/opentelemetry-exporter-otlp-proto-http/src/opentelemetry/exporter/otlp/proto/http/version/__init__.py \
+	    2>/dev/null || true
