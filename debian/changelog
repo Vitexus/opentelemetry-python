@@ -1,19 +1,8 @@
-python-opentelemetry-api (1.41.1-2) UNRELEASED; urgency=medium
+python-opentelemetry-proto (1.43.0-1) UNRELEASED; urgency=low
 
-  * Add missing python3-typing-extensions (>= 4.5.0) to Depends and pin
-    python3-importlib-metadata to (>= 6.0): both are required runtime
-    dependencies per upstream pyproject.toml, but only importlib-metadata
-    was previously declared. Relates to mcp-server-webdriver issue #3
-    (ModuleNotFoundError: No module named 'importlib_metadata', surfacing
-    as "FastMCP server support is not installed") — that install was
-    missing importlib-metadata because it predates this package's prior
-    fix being rebuilt/republished; typing-extensions was still absent
-    from Depends regardless and would have failed the same way next
+  * Initial Debian packaging. Supersedes Debian's own stale
+    python3-opentelemetry-proto (1.5.0-1) with the current
+    opentelemetry-python monorepo release, kept in lockstep with
+    python3-opentelemetry-sdk (1.43.0) and the OTLP exporter packages.
 
- -- Vítězslav Dvořák <info@vitexsoftware.cz>  Tue, 21 Jul 2026 14:30:00 +0200
-
-python-opentelemetry-api (1.41.1-1) UNRELEASED; urgency=low
-
-  * Initial Debian packaging
-
- -- Vítězslav Dvořák <info@vitexsoftware.cz>  Mon, 11 May 2026 12:40:05 +0200
+ -- Vítězslav Dvořák <info@vitexsoftware.cz>  Mon, 27 Jul 2026 20:03:08 +0200

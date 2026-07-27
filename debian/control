@@ -1,4 +1,4 @@
-Source: python-opentelemetry-api
+Source: python-opentelemetry-proto
 Section: python
 Priority: optional
 Maintainer: Vítězslav Dvořák <info@vitexsoftware.cz>
@@ -9,24 +9,33 @@ Build-Depends:
  python3-all,
  python3-hatchling,
 Standards-Version: 4.7.0
-Homepage: https://github.com/open-telemetry/opentelemetry-python
+Homepage: https://github.com/open-telemetry/opentelemetry-python/tree/main/opentelemetry-proto
 Rules-Requires-Root: no
-Vcs-Git: https://github.com/Vitexus/opentelemetry-python.git
-Vcs-Browser: https://github.com/Vitexus/opentelemetry-python
+Vcs-Git: https://github.com/Vitexus/opentelemetry-python.git -b debian-packaging-proto
+Vcs-Browser: https://github.com/Vitexus/opentelemetry-python/tree/debian-packaging-proto
 
-Package: python3-opentelemetry-api
+Package: python3-opentelemetry-proto
 Architecture: all
 Multi-Arch: foreign
 Depends:
  ${misc:Depends},
  ${python3:Depends},
- python3-importlib-metadata (>= 6.0),
- python3-typing-extensions (>= 4.5.0),
-Description: OpenTelemetry Python API
+ python3-protobuf,
+Description: OpenTelemetry Python Proto definitions
  OpenTelemetry is a collection of tools, APIs, and SDKs used to instrument,
  generate, collect, and export telemetry data (metrics, logs, and traces).
  .
- This package provides the OpenTelemetry Python API layer, which defines
- the interfaces for distributed tracing, metrics, and context propagation.
+ This package provides the generated Protocol Buffer bindings for the
+ OTLP wire format, shared by the OTLP gRPC and HTTP exporters.
+ .
+ This package supersedes Debian's own python3-opentelemetry-proto
+ (1.5.0-1), which tracks an old, pre-monorepo standalone versioning
+ scheme for the OTLP proto definitions and is far behind what current
+ opentelemetry-sdk/-exporter-otlp-* releases expect. Verified compatible
+ at runtime with Debian trixie's python3-protobuf (3.21.12): the
+ upstream pyproject.toml's "protobuf>=5.0,<7.0" constraint is a
+ conservative pip-metadata pin, not an actual generated-code
+ requirement -- smoke-tested importing, serializing and parsing
+ trace/metrics OTLP messages against protobuf 3.21.12 succeeds.
  .
  This package provides the Python 3 library.

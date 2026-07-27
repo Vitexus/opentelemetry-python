@@ -1,18 +1,42 @@
 #!/usr/bin/make -f
-export PYBUILD_NAME=opentelemetry-api
-export PYBUILD_DIR=opentelemetry-api
+
+# NOTE on package layout: opentelemetry-proto is not its own git repository
+# -- it is a subdirectory of the open-telemetry/opentelemetry-python
+# monorepo (opentelemetry-proto/), which has its own pyproject.toml. We
+# build directly from that subdirectory via PYBUILD_DIR rather than
+# vendoring the PyPI sdist.
+
+export PYBUILD_NAME=opentelemetry-proto
+export PYBUILD_DIR=opentelemetry-proto
 
 %:
 	dh $@ --with python3 --buildsystem=pybuild
 
 override_dh_auto_configure:
-	sed -i 's/__version__ = "1\.42\.0\.dev"/__version__ = "1.41.1"/' \
-	    opentelemetry-api/src/opentelemetry/version/__init__.py
+	sed -i 's/__version__ = "1\.42\.0\.dev"/__version__ = "1.43.0"/' \
+	    opentelemetry-proto/src/opentelemetry/proto/version/__init__.py
+	# Debian's packaged python3-hatchling (1.27.0) validates classifiers
+	# against an older trove-classifiers list that does not yet know
+	# Python 3.13/3.14, and raises a hard ValueError during the build
+	# backend's metadata step. Strip these unrecognized classifiers; they
+	# carry no functional meaning for the Debian package.
+	sed -i '/"Programming Language :: Python :: 3\.1[34]",/d' \
+	    opentelemetry-proto/pyproject.toml
+	# Relax protobuf floor: pyproject.toml pins protobuf>=5.0,<7.0, but
+	# Debian trixie ships python3-protobuf 3.21.12. Smoke-tested (import,
+	# serialize, parse OTLP trace/metrics messages) against 3.21.12 and it
+	# works fine -- the >=5.0 pin is a conservative upstream pip
+	# constraint, not an actual runtime requirement of the generated code.
+	sed -i 's/"protobuf>=5\.0, < 7\.0",/"protobuf",/' \
+	    opentelemetry-proto/pyproject.toml
 	dh_auto_configure
 
 override_dh_auto_test:
-	# Skip tests
+	# Skip tests - test dependencies not packaged
 
 override_dh_auto_clean:
 	dh_auto_clean
-	git checkout opentelemetry-api/src/opentelemetry/version/__init__.py 2>/dev/null || true
+	git checkout \
+	    opentelemetry-proto/src/opentelemetry/proto/version/__init__.py \
+	    opentelemetry-proto/pyproject.toml \
+	    2>/dev/null || true
