@@ -1,0 +1,38 @@
+Source: python-opentelemetry-exporter-otlp-proto-http
+Section: python
+Priority: optional
+Maintainer: Vítězslav Dvořák <info@vitexsoftware.cz>
+Build-Depends:
+ debhelper-compat (= 13),
+ dh-python,
+ pybuild-plugin-pyproject,
+ python3-all,
+ python3-hatchling,
+Standards-Version: 4.7.0
+Homepage: https://github.com/open-telemetry/opentelemetry-python/tree/main/exporter/opentelemetry-exporter-otlp-proto-http
+Rules-Requires-Root: no
+Vcs-Git: https://github.com/Vitexus/opentelemetry-python.git -b debian-packaging-otlp-proto-http
+Vcs-Browser: https://github.com/Vitexus/opentelemetry-python/tree/debian-packaging-otlp-proto-http
+
+Package: python3-opentelemetry-exporter-otlp-proto-http
+Architecture: all
+Multi-Arch: foreign
+Depends:
+ ${misc:Depends},
+ ${python3:Depends},
+ python3-googleapis-common-protos (>= 1.52),
+ python3-opentelemetry-api (>= 1.41.1),
+ python3-opentelemetry-exporter-otlp-proto-common (>= 1.43.0),
+ python3-opentelemetry-proto,
+ python3-opentelemetry-sdk (>= 1.43.0),
+ python3-requests,
+ python3-typing-extensions (>= 4.5.0),
+Description: OpenTelemetry Collector Protobuf over HTTP Exporter
+ OpenTelemetry is a collection of tools, APIs, and SDKs used to instrument,
+ generate, collect, and export telemetry data (metrics, logs, and traces).
+ .
+ This package provides the OTLP HTTP exporter, which sends trace, metric,
+ and log telemetry to an OpenTelemetry Collector (or any OTLP-compatible
+ backend) over HTTP using Protocol Buffers.
+ .
+ This package provides the Python 3 library.
