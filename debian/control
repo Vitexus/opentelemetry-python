@@ -1,0 +1,32 @@
+Source: python-opentelemetry-exporter-otlp-proto-common
+Section: python
+Priority: optional
+Maintainer: Vítězslav Dvořák <info@vitexsoftware.cz>
+Build-Depends:
+ debhelper-compat (= 13),
+ dh-python,
+ pybuild-plugin-pyproject,
+ python3-all,
+ python3-hatchling,
+Standards-Version: 4.7.0
+Homepage: https://github.com/open-telemetry/opentelemetry-python/tree/main/exporter/opentelemetry-exporter-otlp-proto-common
+Vcs-Git: https://github.com/Vitexus/opentelemetry-python.git
+Vcs-Browser: https://github.com/Vitexus/opentelemetry-python
+Rules-Requires-Root: no
+
+Package: python3-opentelemetry-exporter-otlp-proto-common
+Architecture: all
+Multi-Arch: foreign
+Depends:
+ ${misc:Depends},
+ ${python3:Depends},
+ python3-opentelemetry-proto,
+Description: OpenTelemetry Protobuf encoding (common)
+ OpenTelemetry is a collection of tools, APIs, and SDKs used to instrument,
+ generate, collect, and export telemetry data (metrics, logs, and traces).
+ .
+ This package provides shared OTLP protobuf encoding helpers used by the
+ OpenTelemetry OTLP exporters (gRPC and HTTP) to translate spans, metrics
+ and log records into their OTLP protobuf wire representations.
+ .
+ This package provides the Python 3 library.
